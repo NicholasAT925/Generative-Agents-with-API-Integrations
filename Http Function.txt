@@ -1,0 +1,28 @@
+import functions_framework
+from flask import Request, make_response, jsonify
+
+@functions_framework.http
+def hello_http(request: Request):
+    """
+    Cloud Function that returns available time slots based on 'day' input.
+    Supports both JSON body and query parameter.
+    """
+    request_json = request.get_json(silent=True)
+    request_args = request.args
+
+    day = None
+    if request_json and "day" in request_json:
+        day = request_json["day"].lower()
+    elif request_args and "day" in request_args:
+        day = request_args["day"].lower()
+
+    if day == "monday":
+        response_data = {"available_slots": ["09:00–11:00"]}
+    elif day == "tuesday":
+        response_data = {"available_slots": ["10:00–13:00"]}
+    else:
+        response_data = {"available_slots": []}
+
+    response = make_response(jsonify(response_data), 200)
+    response.headers["Content-Type"] = "application/json"
+    return response
